@@ -6,6 +6,9 @@ on:
     - cron: "0 23 * * *"  # UTC 23:00 = JST 08:00
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   notify:
     runs-on: ubuntu-latest

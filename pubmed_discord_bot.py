@@ -20,8 +20,8 @@ import google.generativeai as genai
 # ============================================================
 # 設定 (環境変数から読み込み)
 # ============================================================
-DISCORD_WEBHOOK_URL = os.environ["https://discordapp.com/api/webhooks/1489983969851084880/x98wzvdtQByy2W_qyYJwPemsBBu2M2QLFDpqmGBBm0HFmUgFpGyMawa-tEZzbg5Lgepp"]
-GEMINI_API_KEY = os.environ["AIzaSyAMN9NEHFYCP1k8tBGedACWPw11iNxRQkE"]
+DISCORD_WEBHOOK_URL = os.environ["DISCORD_WEBHOOK_URL"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
 # Gemini の設定
 genai.configure(api_key=GEMINI_API_KEY)

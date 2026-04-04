@@ -1,0 +1,40 @@
+# .github/workflows/gi_digest.yml
+name: GI Digest Bot
+
+on:
+  schedule:
+    # 1日4回 (すべてJST)
+    - cron: "0 22 * * *"   # JST 07:00 (朝)
+    - cron: "0 3 * * *"    # JST 12:00 (昼)
+    - cron: "0 9 * * *"    # JST 18:00 (夕)
+    - cron: "0 13 * * *"   # JST 22:00 (夜)
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore notified PMIDs
+        uses: actions/cache@v4
+        with:
+          path: notified_digest_pmids.json
+          key: digest-pmids-${{ github.run_id }}
+          restore-keys: digest-pmids-
+
+      - name: Run bot
+        env:
+          GI_DIGEST_WEBHOOK_URL: ${{ secrets.GI_DIGEST_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python gi_digest_bot.py

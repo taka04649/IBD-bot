@@ -25,7 +25,7 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
 # Gemini の設定
 genai.configure(api_key=GEMINI_API_KEY)
-GEMINI_MODEL = "gemini-2.0-pro"
+GEMINI_MODEL = "gemini-2.0-flash"
 
 # 検索クエリ (MeSH + フリーテキスト)
 SEARCH_QUERY = (
@@ -82,12 +82,16 @@ def fetch_articles(pmids: list[str]) -> list[dict]:
     resp = requests.get(EFETCH_URL, params=params, timeout=30)
     resp.raise_for_status()
 
+    # デバッグ: 取得したXMLの先頭を表示
+    print(f"[Debug] XML response length: {len(resp.content)} bytes")
+    print(f"[Debug] XML preview: {resp.content[:500].decode('utf-8', errors='replace')}")
+
     root = ET.fromstring(resp.content)
     articles = []
 
     for article_elem in root.findall(".//PubmedArticle"):
         pmid = _text(article_elem, ".//PMID")
-        title = _text(article_elem, ".//ArticleTitle")
+        title = _full_text(article_elem, ".//ArticleTitle")
 
         # Abstract は複数の AbstractText 要素を結合
         abstract_parts = []
@@ -100,8 +104,21 @@ def fetch_articles(pmids: list[str]) -> list[dict]:
                 abstract_parts.append(text)
         abstract = "\n".join(abstract_parts)
 
+        # AbstractText が見つからなかった場合、Abstract 要素全体から取得を試みる
+        if not abstract:
+            abstract_node = article_elem.find(".//Abstract")
+            if abstract_node is not None:
+                abstract = "".join(abstract_node.itertext()).strip()
+
+        # デバッグログ
+        if abstract:
+            print(f"  [OK] PMID {pmid}: abstract {len(abstract)} 文字")
+        else:
+            print(f"  [SKIP] PMID {pmid}: abstractなし - {title[:60]}")
+            continue  # abstractがない論文はスキップ
+
         # ジャーナル名
-        journal = _text(article_elem, ".//Journal/Title")
+        journal = _full_text(article_elem, ".//Journal/Title")
 
         # 著者 (先頭3名)
         authors = []
@@ -128,14 +145,23 @@ def fetch_articles(pmids: list[str]) -> list[dict]:
             "doi": doi,
         })
 
-    print(f"[PubMed] {len(articles)} 件のabstractを取得")
+    print(f"[PubMed] {len(articles)} 件のabstract付き論文を取得")
     return articles
 
 
 def _text(elem, path: str) -> str:
+    """XMLから直接のテキストを取得"""
     node = elem.find(path)
     if node is not None and node.text:
         return node.text.strip()
+    return ""
+
+
+def _full_text(elem, path: str) -> str:
+    """XMLから子要素含む全テキストを取得（<i>タグ等に対応）"""
+    node = elem.find(path)
+    if node is not None:
+        return "".join(node.itertext()).strip()
     return ""
 
 

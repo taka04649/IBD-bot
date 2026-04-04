@@ -25,16 +25,16 @@ GI_DIGEST_WEBHOOK_URL = os.environ["GI_DIGEST_WEBHOOK_URL"]
 GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
 genai.configure(api_key=GEMINI_API_KEY)
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-2.0-pro"
 
 # 通知済みPMID記録
 NOTIFIED_FILE = Path(__file__).parent / "notified_digest_pmids.json"
 
 # 直近何日分から選ぶか（広めに取って良い論文を選定）
-SEARCH_DAYS = 7
+SEARCH_DAYS = 90
 
 # 1回の投稿で紹介する論文数
-ARTICLES_PER_POST = 1
+ARTICLES_PER_POST = 3
 
 # PubMed検索の最大取得件数（候補プール）
 MAX_RESULTS = 50

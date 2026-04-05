@@ -25,7 +25,7 @@ GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 
 # Gemini の設定
 genai.configure(api_key=GEMINI_API_KEY)
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
 
 # 検索クエリ (MeSH + フリーテキスト)
 SEARCH_QUERY = (

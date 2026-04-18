@@ -175,12 +175,14 @@ def summarize_abstract(title: str, abstract: str) -> str:
 
     model = genai.GenerativeModel(GEMINI_MODEL)
 
-    prompt = f"""以下の医学論文のAbstractを日本語で簡潔に要約してください。
+    prompt = f"""以下の医学論文のAbstractを日本語で要約してください。
 
 ## フォーマット
-- **研究デザイン**: （1文）
-- **主要結果**: （2〜3文）
-- **臨床的意義**: （1文）
+- **要約**
+- **研究デザイン**: 
+- **主要結果**: 
+- **臨床的意義**: 
+　以上を500字程度で
 
 ## 論文
 タイトル: {title}
